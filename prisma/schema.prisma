@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  name        String
+  email       String        @unique
+  password    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  birthDate   DateTime
+  gender      String
+  iin         String?
+  phoneNumber String?
+  surveys     Survey?
+  Appointment Appointment[]
+}
+
+model Survey {
+  id        Int  @id @default(autoincrement())
+  author    User @relation(fields: [authorId], references: [id])
+  authorId  Int  @unique
+  question1 Int
+  question2 Int
+  question3 Int
+}
+
+model Doctor {
+  id                Int       @id @default(autoincrement())
+  name             String
+  email            String    @unique
+  password         String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  specialization_type String
+  clinic           Clinic    @relation(fields: [clinicId], references: [id])
+  clinicId         Int
+  appointments     Appointment[]
+}
+
+model Clinic {
+  id        Int        @id @default(autoincrement())
+  name      String
+  address   String
+  phone     String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  doctors   Doctor[]
+  Appointment Appointment[]
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId  Int
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  clinicId  Int
+  patient   User     @relation(fields: [patientId], references: [id])
+  patientId Int
+  format    String   @default("offline")
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
